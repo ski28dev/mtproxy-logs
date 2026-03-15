@@ -1,57 +1,57 @@
 # mtproxy-logs
 
-Alpha release.
+Альфа-версия.
 
-`mtproxy-logs` is the runtime side of the stack:
+`mtproxy-logs` — это runtime-часть стека:
 
-- patched `MTProxy`
-- managed multi-secret startup
-- host-level service templates
-- log format used by the panel
+- пропатченный `MTProxy`
+- managed-запуск с несколькими `secret`
+- хостовые шаблоны сервисов
+- формат логов, который использует панель
 
-This repository is meant to be paired with `mtproxy-logs-panel`.
+Этот репозиторий предполагается использовать вместе с `mtproxy-logs-panel`.
 
-## Status
+## Статус
 
-This is a public alpha build.
+Это публичная альфа-версия.
 
-- the project is usable
-- the layout may still change
-- install flow is still being simplified
-- review everything before using it in production
+- проект уже можно использовать
+- структура ещё может меняться
+- процесс установки ещё упрощается
+- перед использованием в production всё нужно перепроверять
 
-## What is inside
+## Что внутри
 
 - `scripts/build-patched-mtproxy.sh`
-  Builds `MTProxy` with the current secret-slot and log-event patch.
+  Сборка `MTProxy` с текущим патчем на количество secret-слотов и события логирования.
 - `scripts/mtproxy-managed-run.sh`
-  Starts `MTProxy` using `/etc/mtproxy/mtproxy.env` and `/etc/mtproxy/managed_secrets.list`.
+  Запуск `MTProxy` через `/etc/mtproxy/mtproxy.env` и `/etc/mtproxy/managed_secrets.list`.
 - `templates/mtproxy.service`
-  Example systemd unit.
+  Пример `systemd`-сервиса.
 - `templates/mtproxy.env.example`
-  Example runtime env file.
+  Пример runtime-конфига.
 - `scripts/bootstrap-all-in-one.sh`
-  Legacy bootstrap script from the first internal install. Keep it as reference only.
+  Старый bootstrap-скрипт из первой внутренней установки. Сейчас это reference, не финальный installer.
 
-## Expected host layout
+## Ожидаемая раскладка на хосте
 
-- `MTProxy` source: `/opt/MTProxy`
+- исходники `MTProxy`: `/opt/MTProxy`
 - runtime env: `/etc/mtproxy/mtproxy.env`
-- secret list: `/etc/mtproxy/managed_secrets.list`
-- log file: `/var/log/mtproxy/mtproxy.log`
-- runner script: `/usr/local/bin/mtproxy-managed-run.sh`
+- список secret: `/etc/mtproxy/managed_secrets.list`
+- лог-файл: `/var/log/mtproxy/mtproxy.log`
+- runner-скрипт: `/usr/local/bin/mtproxy-managed-run.sh`
 
-## Quick start
+## Быстрый старт
 
-1. Install build dependencies and `MTProxy` source.
-2. Build the patched binary:
+1. Установить зависимости для сборки и исходники `MTProxy`.
+2. Собрать пропатченный бинарь:
 
 ```bash
 chmod +x scripts/build-patched-mtproxy.sh
 ./scripts/build-patched-mtproxy.sh /opt/MTProxy
 ```
 
-3. Copy runtime files:
+3. Установить runtime-файлы:
 
 ```bash
 sudo install -m 755 scripts/mtproxy-managed-run.sh /usr/local/bin/mtproxy-managed-run.sh
@@ -60,32 +60,31 @@ sudo mkdir -p /etc/mtproxy /var/log/mtproxy
 sudo cp templates/mtproxy.env.example /etc/mtproxy/mtproxy.env
 ```
 
-4. Edit `/etc/mtproxy/mtproxy.env`.
-5. Create `/etc/mtproxy/managed_secrets.list`.
-6. Start the service:
+4. Отредактировать `/etc/mtproxy/mtproxy.env`.
+5. Создать `/etc/mtproxy/managed_secrets.list`.
+6. Запустить сервис:
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now mtproxy.service
 ```
 
-## Notes
+## Замечания
 
-- `MTProxy` listens on `TCP 443` in the current layout.
-- the panel relies on `MTP_EVENT handshake_ok` and `MTP_EVENT disconnect` log lines
-- if you change the log format, the panel importer must be updated too
+- в текущей схеме `MTProxy` слушает `TCP 443`
+- панель опирается на строки логов `MTP_EVENT handshake_ok` и `MTP_EVENT disconnect`
+- если менять формат логов, нужно обновлять и импортёр панели
 
-## Pairing with the panel
+## Связка с панелью
 
-Use this together with:
+Использовать вместе с:
 
 - `mtproxy-logs-panel`
 
-The panel manages:
+Панель управляет:
 
-- secrets
-- groups
-- slot history
-- log import
-- runtime statistics
-
+- `secret`
+- группами
+- историей слотов
+- импортом логов
+- runtime-статистикой
