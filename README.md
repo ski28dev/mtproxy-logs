@@ -41,33 +41,50 @@
 - лог-файл: `/var/log/mtproxy/mtproxy.log`
 - runner-скрипт: `/usr/local/bin/mtproxy-managed-run.sh`
 
-## Быстрый старт
+## Установка на чистый Ubuntu-сервер
 
-1. Установить зависимости для сборки и исходники `MTProxy`.
-2. Собрать пропатченный бинарь:
-
-```bash
-chmod +x scripts/build-patched-mtproxy.sh
-./scripts/build-patched-mtproxy.sh /opt/MTProxy
-```
-
-3. Установить runtime-файлы:
+Минимальный сценарий:
 
 ```bash
-sudo install -m 755 scripts/mtproxy-managed-run.sh /usr/local/bin/mtproxy-managed-run.sh
-sudo install -m 644 templates/mtproxy.service /etc/systemd/system/mtproxy.service
-sudo mkdir -p /etc/mtproxy /var/log/mtproxy
-sudo cp templates/mtproxy.env.example /etc/mtproxy/mtproxy.env
+git clone https://github.com/ski28dev/mtproxy-logs.git
+cd mtproxy-logs
+sudo chmod +x scripts/*.sh
+sudo ./scripts/install-runtime.sh
 ```
 
-4. Отредактировать `/etc/mtproxy/mtproxy.env`.
-5. Создать `/etc/mtproxy/managed_secrets.list`.
-6. Запустить сервис:
+Что делает installer:
+
+- ставит build-зависимости
+- клонирует или обновляет `MTProxy` в `/opt/MTProxy`
+- накладывает патч логирования и multi-secret
+- собирает бинарь
+- ставит runner и fetch-скрипты в `/usr/local/bin`
+- создаёт `/etc/mtproxy/mtproxy.env`
+- создаёт `/etc/mtproxy/managed_secrets.list`
+- подтягивает `proxy-secret` и `proxy-multi.conf` с `core.telegram.org`
+- ставит и запускает `mtproxy.service`
+
+После установки можно отредактировать:
+
+- `/etc/mtproxy/mtproxy.env`
+- `/etc/mtproxy/managed_secrets.list`
+
+И затем перечитать сервис:
 
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now mtproxy.service
+sudo systemctl restart mtproxy.service
 ```
+
+## Полезные скрипты
+
+- `scripts/install-runtime.sh`
+  Установка runtime на fresh server.
+- `scripts/build-patched-mtproxy.sh`
+  Ручная пересборка патченного `MTProxy`.
+- `scripts/mtproxy-fetch-config.sh`
+  Обновление `proxy-secret` и `proxy-multi.conf`.
+- `scripts/generate-client-secret.sh`
+  Генерация `ee...` client secret из raw secret и fake host.
 
 ## Замечания
 

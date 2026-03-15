@@ -4,7 +4,7 @@ set -euo pipefail
 . /etc/mtproxy/mtproxy.env
 
 args=(
-  -u nobody
+  -u "${RUN_USER:-nobody}"
   -p "${STATS_PORT}"
   -H "${PORT}"
   -D "${FAKE_HOST}"
@@ -26,4 +26,3 @@ if [[ "${has_secret}" -eq 0 && -n "${SECRET_RAW:-}" ]]; then
 fi
 
 exec /opt/MTProxy/objs/bin/mtproto-proxy "${args[@]}" 2>>/var/log/mtproxy/mtproxy.log
-
