@@ -1,0 +1,8 @@
+[Unit]
+Description=MTProxy watchdog
+After=network-online.target mtproxy.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/mtproxy-watchdog.sh

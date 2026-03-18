@@ -44,9 +44,15 @@ touch "${LOG_FILE}"
 chmod 640 "${LOG_FILE}"
 
 install -m 755 "${REPO_DIR}/scripts/mtproxy-managed-run.sh" /usr/local/bin/mtproxy-managed-run.sh
+install -m 755 "${REPO_DIR}/scripts/mtproxy-unshare-run.sh" /usr/local/bin/mtproxy-unshare-run.sh
 install -m 755 "${REPO_DIR}/scripts/mtproxy-fetch-config.sh" /usr/local/bin/mtproxy-fetch-config.sh
+install -m 755 "${REPO_DIR}/scripts/mtproxy-watchdog.sh" /usr/local/bin/mtproxy-watchdog.sh
 install -m 755 "${REPO_DIR}/scripts/generate-client-secret.sh" /usr/local/bin/mtproxy-generate-client-secret
 install -m 644 "${REPO_DIR}/templates/mtproxy.service" /etc/systemd/system/mtproxy.service
+install -m 644 "${REPO_DIR}/templates/mtproxy-watchdog.service" /etc/systemd/system/mtproxy-watchdog.service
+install -m 644 "${REPO_DIR}/templates/mtproxy-watchdog.timer" /etc/systemd/system/mtproxy-watchdog.timer
+install -m 644 "${REPO_DIR}/templates/mtproxy-refresh.service" /etc/systemd/system/mtproxy-refresh.service
+install -m 644 "${REPO_DIR}/templates/mtproxy-refresh.timer" /etc/systemd/system/mtproxy-refresh.timer
 
 if [[ ! -f "${ENV_FILE}" ]]; then
   raw_secret="$(openssl rand -hex 16)"
@@ -57,7 +63,6 @@ STATS_PORT=${STATS_PORT}
 FAKE_HOST=${FAKE_HOST}
 SECRET_RAW=${raw_secret}
 SECRET_TLS=${client_secret}
-RUN_USER=${RUN_USER}
 EOF
   chmod 600 "${ENV_FILE}"
   echo "created ${ENV_FILE}"
@@ -80,6 +85,8 @@ fi
 
 systemctl daemon-reload
 systemctl enable --now mtproxy.service
+systemctl enable --now mtproxy-watchdog.timer
+systemctl enable --now mtproxy-refresh.timer
 
 echo
 echo "MTProxy runtime installed."

@@ -1,0 +1,10 @@
+[Unit]
+Description=Refresh Telegram MTProxy config daily
+
+[Timer]
+OnBootSec=10m
+OnUnitActiveSec=1d
+Unit=mtproxy-refresh.service
+
+[Install]
+WantedBy=timers.target

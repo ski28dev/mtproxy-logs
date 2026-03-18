@@ -4,12 +4,13 @@ set -euo pipefail
 . /etc/mtproxy/mtproxy.env
 
 args=(
-  -u "${RUN_USER:-nobody}"
+  -u nobody
   -p "${STATS_PORT}"
   -H "${PORT}"
   -D "${FAKE_HOST}"
   --aes-pwd /etc/mtproxy/proxy-secret /etc/mtproxy/proxy-multi.conf
   -M 1
+  -v
 )
 
 has_secret=0
@@ -21,7 +22,7 @@ if [[ -f /etc/mtproxy/managed_secrets.list ]]; then
   done </etc/mtproxy/managed_secrets.list
 fi
 
-if [[ "${has_secret}" -eq 0 && -n "${SECRET_RAW:-}" ]]; then
+if [[ "${has_secret}" -eq 0 ]]; then
   args+=(-S "${SECRET_RAW}")
 fi
 

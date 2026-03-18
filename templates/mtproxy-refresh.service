@@ -1,0 +1,9 @@
+[Unit]
+Description=Refresh Telegram MTProxy config
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/mtproxy-fetch-config.sh
+ExecStartPost=/bin/systemctl try-restart mtproxy.service
