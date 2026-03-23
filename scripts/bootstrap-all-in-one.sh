@@ -190,6 +190,13 @@ exec /opt/MTProxy/objs/bin/mtproto-proxy "${args[@]}" 2>>/var/log/mtproxy/mtprox
 EOF_RUN
 chmod 755 /usr/local/bin/mtproxy-managed-run.sh
 
+cat >/usr/local/bin/mtproxy-unshare-run.sh <<'EOF_UNSHARE'
+#!/usr/bin/env bash
+set -euo pipefail
+exec unshare --pid --fork --mount-proc /usr/local/bin/mtproxy-managed-run.sh
+EOF_UNSHARE
+chmod 755 /usr/local/bin/mtproxy-unshare-run.sh
+
 cat >/usr/local/bin/mtproxy-panel-sync <<'EOF_SYNC'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -213,7 +220,7 @@ Wants=network-online.target
 Type=simple
 EnvironmentFile=/etc/mtproxy/mtproxy.env
 ExecStartPre=/usr/local/bin/mtproxy-fetch-config.sh
-ExecStart=/usr/local/bin/mtproxy-managed-run.sh
+ExecStart=/usr/local/bin/mtproxy-unshare-run.sh
 Restart=always
 RestartSec=3
 LimitNOFILE=65535

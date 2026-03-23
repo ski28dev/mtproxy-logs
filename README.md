@@ -1,6 +1,6 @@
 # mtproxy-logs
 
-Альфа-версия.
+Альфа-версия `v0.5.1`.
 
 `mtproxy-logs` — это runtime-часть стека:
 
@@ -26,6 +26,8 @@
   Сборка `MTProxy` с текущим патчем на количество secret-слотов и события логирования.
 - `scripts/mtproxy-managed-run.sh`
   Запуск `MTProxy` через `/etc/mtproxy/mtproxy.env` и `/etc/mtproxy/managed_secrets.list`.
+- `scripts/mtproxy-unshare-run.sh`
+  Обёртка запуска через отдельный PID namespace, чтобы не словить известный crash `init_common_PID`.
 - `templates/mtproxy.service`
   Пример `systemd`-сервиса.
 - `templates/mtproxy.env.example`
@@ -40,6 +42,7 @@
 - список secret: `/etc/mtproxy/managed_secrets.list`
 - лог-файл: `/var/log/mtproxy/mtproxy.log`
 - runner-скрипт: `/usr/local/bin/mtproxy-managed-run.sh`
+- unshare-обёртка: `/usr/local/bin/mtproxy-unshare-run.sh`
 
 ## Установка на чистый Ubuntu-сервер
 
@@ -59,6 +62,7 @@ sudo ./scripts/install-runtime.sh
 - накладывает патч логирования и multi-secret
 - собирает бинарь
 - ставит runner и fetch-скрипты в `/usr/local/bin`
+- ставит `mtproxy-unshare-run.sh` и запускает сервис через него
 - создаёт `/etc/mtproxy/mtproxy.env`
 - создаёт `/etc/mtproxy/managed_secrets.list`
 - подтягивает `proxy-secret` и `proxy-multi.conf` с `core.telegram.org`
@@ -83,12 +87,15 @@ sudo systemctl restart mtproxy.service
   Ручная пересборка патченного `MTProxy`.
 - `scripts/mtproxy-fetch-config.sh`
   Обновление `proxy-secret` и `proxy-multi.conf`.
+- `scripts/mtproxy-unshare-run.sh`
+  Безопасный запуск `MTProxy` через `unshare --pid --fork --mount-proc`.
 - `scripts/generate-client-secret.sh`
   Генерация `ee...` client secret из raw secret и fake host.
 
 ## Замечания
 
 - в текущей схеме `MTProxy` слушает `TCP 443`
+- сервис должен стартовать через `mtproxy-unshare-run.sh`, иначе после ряда обновлений Linux можно снова получить crash `init_common_PID`
 - панель опирается на строки логов `MTP_EVENT handshake_ok` и `MTP_EVENT disconnect`
 - если менять формат логов, нужно обновлять и импортёр панели
 
